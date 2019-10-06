@@ -6,13 +6,13 @@ enum layers {
     _GAME,
     _LOWER,
     _RAISE,
-    _ADJUST,
     _MOV,
-    _NUM
+    _NUM,
+    _ADJUST
 };
 
 enum keycodes {
-    QWERTY,
+    QWERTY = SAFE_RANGE,
     COLEMAK,
     GAME
 };
@@ -133,24 +133,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             _______ , _______ , _______ , _______ , _______ ,      _______      , _______   , _______    , _______ , _______ , _______
             ),
 
-    /* Adjust (Lower + Raise)
-     * ,-----------------------------------------------------------------------------------.
-     * | Reset|Qwerty| RGB+ | Bri+ |      |      |      | Vol- | Play | Vol+ | Mute | Game |
-     * |------+------+------+------+------+-------------+------+------+------+------+------|
-     * |      |      | RGB- | Bri- | MOUS1| MOUS2| MOUSL| MOUSD| MOUSU| MOUSR|      |      |
-     * |------+------+------+------+------+------|------+------+------+------+------+------|
-     * |      |BLtogg|BLstep|Colemk|      |      |      | ACC0 | ACC1 | ACC2 |      |      |
-     * |------+------+------+------+------+------+------+------+------+------+------+------|
-     * |      |      |      |      | **** |             | **** |      |      |      |      |
-     * `-----------------------------------------------------------------------------------'
-     */
-    [_ADJUST] = LAYOUT_planck_mit(
-            RESET   , QWERTY  , RGB_VAI , KC_BRIU , _______ , _______, _______ , KC_VOLD, KC_MPLY, KC_VOLU, KC_MUTE, GAME   ,
-            _______ , _______ , RGB_VAD , KC_BRID , KC_BTN1 , KC_BTN2, KC_MS_L , KC_MS_D, KC_MS_U, KC_MS_R, _______, _______,
-            _______ , RGB_TOG , RGB_MOD , COLEMAK , _______ , _______, _______ , KC_ACL0, KC_ACL1, KC_ACL2, _______, _______,
-            _______ , _______ , _______ , _______ , _______ ,     _______      , _______, _______, _______, _______, _______
-            ),
-
     /* MOV
      * ,-----------------------------------------------------------------------------------.
      * |      |      |      |      |      | PgUp | CIns |      |      |      | SIns |      |
@@ -188,8 +170,26 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             XXXXXXX , KC_F6   , KC_F7   , KC_F8   , KC_F9   , KC_F10  , KC_BSPC , KC_4 , KC_5    , KC_6    , KC_PPLS , XXXXXXX ,
             XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX , KC_F11  , KC_F12  , KC_ENT  , KC_1 , KC_2    , KC_3    , KC_PMNS , XXXXXXX ,
             XXXXXXX , XXXXXXX , XXXXXXX , _______ , XXXXXXX ,      XXXXXXX      , KC_0 , KC_COMM ,KC_DOT   , XXXXXXX , XXXXXXX
-            )
+            ),
 
+
+    /* Adjust (Lower + Raise)
+     * ,-----------------------------------------------------------------------------------.
+     * | Reset|Qwerty| RGB+ | Bri+ |      |      |      | Vol- | Play | Vol+ | Mute | Game |
+     * |------+------+------+------+------+-------------+------+------+------+------+------|
+     * |      |      | RGB- | Bri- | MOUS1| MOUS2| MOUSL| MOUSD| MOUSU| MOUSR|      |      |
+     * |------+------+------+------+------+------|------+------+------+------+------+------|
+     * |      |BLtogg|BLstep|Colemk|      |      |      | ACC0 | ACC1 | ACC2 |      |      |
+     * |------+------+------+------+------+------+------+------+------+------+------+------|
+     * |      |      |      |      | **** |             | **** |      |      |      |      |
+     * `-----------------------------------------------------------------------------------'
+     */
+    [_ADJUST] = LAYOUT_planck_mit(
+            RESET   , QWERTY  , RGB_VAI , KC_BRIU , _______ , _______, _______ , KC_VOLD, KC_MPLY, KC_VOLU, KC_MUTE, GAME   ,
+            _______ , _______ , RGB_VAD , KC_BRID , KC_BTN1 , KC_BTN2, KC_MS_L , KC_MS_D, KC_MS_U, KC_MS_R, _______, _______,
+            _______ , RGB_TOG , RGB_MOD , COLEMAK , _______ , _______, _______ , KC_ACL0, KC_ACL1, KC_ACL2, _______, _______,
+            _______ , _______ , _______ , _______ , _______ ,     _______      , _______, _______, _______, _______, _______
+            )
 };
 
 uint32_t layer_state_set_user(uint32_t state) {
