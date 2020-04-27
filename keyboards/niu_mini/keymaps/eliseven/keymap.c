@@ -8,14 +8,50 @@ enum layers {
     _RAISE,
     _MOV,
     _NUM,
+    _SHORTCUTS,
     _ADJUST
 };
 
 enum keycodes {
     QWERTY = SAFE_RANGE,
     COLEMAK,
-    GAME
+    GAME,
+    SHORTCUTS
 };
+
+static bool discord_mute = 0;
+static bool stream_mute = 0;
+static int active_scene = 0;
+
+void check_toggles(void) {
+    if(discord_mute){
+        rgblight_setrgb_range(0, 255, 0, 1, 3);
+    } else{
+        rgblight_setrgb_range(0, 0, 0, 1, 3);
+    }
+    if(stream_mute){
+        rgblight_setrgb_range(255, 0, 0, 12, 14);
+    } else{
+        rgblight_setrgb_range(0, 0, 0, 12, 14);
+    }
+}
+
+void check_scenes(void) {
+    switch(active_scene) {
+        case 0:
+            rgblight_setrgb(RGB_WHITE);
+            break;
+        case 1:
+            rgblight_setrgb(RGB_TEAL);
+            break;
+        case 2:
+            rgblight_setrgb(RGB_PINK);
+            break;
+        case 3:
+            rgblight_setrgb(RGB_YELLOW);
+            break;
+    }
+}
 
 #define SPCMOV LT(_MOV, KC_SPC)
 #define TABNUM LT(_NUM, KC_TAB)
@@ -81,20 +117,22 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * |------+------+------+------+------+------|------+------+------+------+------+------|
      * | Shift|   Z  |   X  |   C  |   V  |   B  |   N  |   M  |  ,<  |  .>  |  /?  | Shift|
      * |------+------+------+------+------+------+------+------+------+------+------+------|
-     * | Ctrl | HYPR |  GUI |  Alt | Lower|    Space    |Raise*| RAlt | RGui | RCtrl| MEH  |
+     * | Ctrl | HYPR |  GUI |  Alt |Lower*|    Space    |Raise*| RAlt | RGui | RCtrl| MEH  |
      * `-----------------------------------------------------------------------------------'
      *
      * This layer is supposed to be used for gaming, you normally cant Ctrl on
      * it's normal position and Space acting as normal. I moved NUM modifier to
      * where Shift is in the base layer. This is mainly thought for LoL as I can
      * have numbers and F keys close to my thumb.
+     * - Tap dance Raise/Enter
+     * - Tap dance Lower/Backspace
      *
      * */
     [_GAME] = LAYOUT_planck_mit(
             KC_TAB  , KC_Q    , KC_W    , KC_E     , KC_R  , KC_T, KC_Y, KC_U   , KC_I    , KC_O    , KC_P    , KC_BSPC,
             KC_ESC  , KC_A    , KC_S    , KC_D     , KC_F  , KC_G, KC_H, KC_J   , KC_K    , KC_L    , KC_SCLN , KC_QUOT,
             KC_LSFT , KC_Z    , KC_X    , KC_C     , KC_V  , KC_B, KC_N, KC_M   , KC_COMM , KC_DOT  , KC_SLSH , KC_RSFT,
-            KC_RCTL , KC_HYPR , KC_LGUI ,  KC_LALT , LOWER ,   KC_SPC  , RAISE  , KC_ALGR , KC_RGUI , KC_RCTL , KC_MEH
+            KC_LCTL , KC_HYPR , KC_LGUI , KC_LALT  , LOWER ,   KC_SPC  , RAISE  , KC_ALGR , KC_RGUI , KC_RCTL , KC_MEH
             ),
 
     /* Lower
@@ -172,6 +210,28 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             XXXXXXX , XXXXXXX , XXXXXXX , _______ , XXXXXXX ,      XXXXXXX      , KC_0 , KC_COMM ,KC_DOT   , XXXXXXX , XXXXXXX
             ),
 
+    /* SHORTCUTS
+     * ,-----------------------------------------------------------------------------------.
+     * | Tab  | F24  | F23  | F22  |      |      |      | KP7  | KP8  | KP9  |      |      |
+     * |------+------+------+------+------+-------------+------+------+------+------+------|
+     * | Ctrl | F19  | F20  | F19  |      |      |      | KP4  | KP5  | KP6  |      |      |
+     * |------+------+------+------+------+------|------+------+------+------+------+------|
+     * | Shift| F18  | F17  | F16  |      |      |      | KP1  | KP2  | KP3  |      |      |
+     * |------+------+------+------+------+------+------+------+------+------+------+------|
+     * | Ctrl | HYPR |  GUI |  Alt |Lower*|    Space    |Raise*| RAlt | RGui | RCtrl| MEH  |
+     * `-----------------------------------------------------------------------------------'
+     *
+     * This layer is for Macro and bind purpouses, such as complicated binds for OBS.
+     * - Tap dance Raise/Enter
+     * - Tap dance Lower/Backspace
+     *
+     * */
+    [_SHORTCUTS] = LAYOUT_planck_mit(
+            KC_TAB  , KC_F24  , KC_F23  , KC_F22 , XXXXXXX , XXXXXXX , XXXXXXX , KC_KP_7 , KC_KP_8 , KC_KP_9 , KC_NUMLOCK , XXXXXXX ,
+            KC_LCTL , KC_F21  , KC_F20  , KC_F19 , XXXXXXX , XXXXXXX , XXXXXXX , KC_KP_4 , KC_KP_5 , KC_KP_6 , XXXXXXX    , XXXXXXX ,
+            KC_LSFT , KC_F18  , KC_F17  , KC_F16 , XXXXXXX , XXXXXXX , XXXXXXX , KC_KP_1 , KC_KP_2 , KC_KP_3 , XXXXXXX    , XXXXXXX ,
+            KC_LCTL , KC_HYPR , KC_LGUI , KC_LALT , LOWER   ,       KC_SPC      , RAISE   , KC_ALGR , KC_RGUI , KC_RCTL   , KC_MEH
+            ),
 
     /* Adjust (Lower + Raise)
      * ,-----------------------------------------------------------------------------------.
@@ -185,10 +245,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
      * `-----------------------------------------------------------------------------------'
      */
     [_ADJUST] = LAYOUT_planck_mit(
-            RESET   , QWERTY  , RGB_VAI , KC_BRIU , _______ , _______, _______ , KC_VOLD, KC_MPLY, KC_VOLU, KC_MUTE, GAME   ,
-            _______ , _______ , RGB_VAD , KC_BRID , KC_BTN1 , KC_BTN2, KC_MS_L , KC_MS_D, KC_MS_U, KC_MS_R, _______, _______,
-            _______ , RGB_TOG , RGB_MOD , COLEMAK , _______ , _______, _______ , KC_ACL0, KC_ACL1, KC_ACL2, _______, _______,
-            _______ , _______ , _______ , _______ , _______ ,     _______      , _______, _______, _______, _______, _______
+            RESET   , QWERTY  , RGB_HUI , RGB_VAI , XXXXXXX , XXXXXXX, XXXXXXX , KC_VOLD, KC_MPLY, KC_VOLU, KC_MUTE, GAME   ,
+            XXXXXXX , XXXXXXX , RGB_HUD , RGB_VAD , KC_BTN1 , KC_BTN2, KC_MS_L , KC_MS_D, KC_MS_U, KC_MS_R, XXXXXXX, SHORTCUTS ,
+            XXXXXXX , RGB_TOG , RGB_MOD , COLEMAK , _______ , _______, _______ , KC_ACL0, KC_ACL1, KC_ACL2, _______, _______,
+            XXXXXXX , XXXXXXX , XXXXXXX , XXXXXXX , _______ ,     XXXXXXX      , _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX
             )
 };
 
@@ -200,22 +260,73 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     switch (keycode) {
         case QWERTY:
             if (record->event.pressed) {
+                rgblight_mode(RGBLIGHT_MODE_RAINBOW_SWIRL + 5);
                 set_single_persistent_default_layer(_QWERTY);
             }
             return false;
             break;
         case COLEMAK:
             if (record->event.pressed) {
+                rgblight_mode(RGBLIGHT_MODE_RAINBOW_SWIRL + 5);
                 set_single_persistent_default_layer(_COLEMAK);
             }
             return false;
             break;
         case GAME:
             if (record->event.pressed) {
+                rgblight_mode(RGBLIGHT_MODE_STATIC_GRADIENT);
                 set_single_persistent_default_layer(_GAME);
             }
             return false;
             break;
+        case SHORTCUTS:
+            if (record->event.pressed) {
+                rgblight_mode(RGBLIGHT_MODE_STATIC_LIGHT);
+                check_scenes();
+                check_toggles();
+                set_single_persistent_default_layer(_SHORTCUTS);
+            }
+            return false;
+            break;
     }
+
     return true;
+}
+
+void post_process_record_user(uint16_t keycode, keyrecord_t *record) {
+    switch(keycode) {
+        case KC_F19:
+            if (record->event.pressed){
+                discord_mute = !discord_mute;
+                check_toggles();
+            }
+            break;
+        case KC_F20:
+            if (record->event.pressed){
+                stream_mute = !stream_mute;
+                check_toggles();
+            }
+            break;
+        case KC_F22:
+            if (record->event.pressed){
+                active_scene = 3;
+                check_scenes();
+                check_toggles();
+            }
+            break;
+        case KC_F23:
+            if (record->event.pressed){
+                active_scene = 2;
+                check_scenes();
+                check_toggles();
+            }
+            break;
+        case KC_F24:
+            if (record->event.pressed){
+                active_scene = 1;
+                check_scenes();
+                check_toggles();
+            }
+            break;
+    }
 }
